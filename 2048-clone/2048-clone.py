@@ -8,34 +8,54 @@ A proof of concept, anyway...
 """
 from random import randint      #For inserting random numbers into the grid.
 
-## A few of these are for testing purposes.
-#start_grid = [[4, 0, 3, 2], [4, 1, 0, 0], [4, 0, 2, 0], [4, 0, 0, 2]]
-#start_grid = [[1, 0, 4, 8], [1, 0, 0, 4], [0, 0, 3, 4], [0, 0, 0, 4]]
-#start_grid = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-#start_grid = [[1, 1, 2, 4], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+# These are for testing purposes.
+test_grid_0 = [[4, 0, 3, 2], [4, 1, 0, 0], [4, 0, 2, 0], [4, 0, 0, 2]]
+test_grid_1 = [[1, 0, 4, 8], [1, 0, 0, 4], [0, 0, 3, 4], [0, 0, 0, 4]]
+test_grid_2 = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+test_grid_3 = [[1, 1, 2, 4], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+test_grid_4 = [[0, 1, 2, 3], [7, 6, 5, 4], [8, 9, 10, 11], [15, 14, 13, 12]]
 
+# This is a blank grid for starting a new game.
 start_grid = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 
 grid = start_grid
+
 """ Here we have some commands for drawing the grid """
 
-def draw_grid():
-    """ Draws a 2048 grid """
-    print(" ")
+def row_print(grid, row):
+    print(f"  \u2551 {grid[row][0]} \u2502 {grid[row][1]} \u2502 {grid[row][2]} \u2502 {grid[row][3]} \u2551".replace("10", "A").replace("11", "B").replace("12", "C").replace("13", "D").replace("14", "E").replace("15", "F").replace("0", " "))
+
+def hline():
+    """ Horizontal line in the grid."""
+    print(" ", "\u255f\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2562")
+    
+def tline():
+    """ Top line of the grid """
     print(" ", "\u2554\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2564\u2550\u2550\u2550\u2557")
-    print(f"  \u2551 {grid[0][0]} \u2502 {grid[0][1]} \u2502 {grid[0][2]} \u2502 {grid[0][3]} \u2551".replace("10", "X").replace("0", " "))
-    print(" ", "\u255f\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2562")
-    print(f"  \u2551 {grid[1][0]} \u2502 {grid[1][1]} \u2502 {grid[1][2]} \u2502 {grid[1][3]} \u2551".replace("10", "X").replace("0", " "))
-    print(" ", "\u255f\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2562")
-    print(f"  \u2551 {grid[2][0]} \u2502 {grid[2][1]} \u2502 {grid[2][2]} \u2502 {grid[2][3]} \u2551".replace("10", "X").replace("0", " "))
-    print(" ", "\u255f\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u253c\u2500\u2500\u2500\u2562")
-    print(f"  \u2551 {grid[3][0]} \u2502 {grid[3][1]} \u2502 {grid[3][2]} \u2502 {grid[3][3]} \u2551".replace("10", "X").replace("0", " "))
+
+    
+def bline():
+    """ Bottom line of the grid."""
     print(" ", "\u255a\u2550\u2550\u2550\u2567\u2550\u2550\u2550\u2567\u2550\u2550\u2550\u2567\u2550\u2550\u2550\u255d")
+
+def draw_grid():
+    """ Draws a 2048 grid. ASCII-style box art here in the style of old DOS games. """
+    print(" ")
+    tline()
+    row_print(grid, 0)
+    hline()
+    row_print(grid, 1)
+    hline()
+    row_print(grid, 2)
+    hline()
+    row_print(grid, 3)
+    bline()
+    # Add the score at the bottom.
     print("Score: ", get_score())
     print(" ")
     
 def get_score():
-    """ Determine the game score from the numbers in the grid. """
+    """ Determine the game score from the numbers in the grid. I'm not really sure how 2048 actuall scores its game; this just tallies the total value of numbers in the grid."""
     score = []
     
     for row in grid:
@@ -44,9 +64,8 @@ def get_score():
                 score.append(2 ** cell)
     return sum(score)
 
-""" We need a way to add numbers to the grid """ 
 def add_number():
-    """ Adds a random number to the grid. """
+    """ Adds a random number to the grid. This gets called at the beginning of every turn."""
     zeros = []
     
     # First, figure out which cells are zeros in the grid.
@@ -57,13 +76,16 @@ def add_number():
     if len(zeros) == 0:
         game_over()
     else:
-        # Now, select one of these to be the place insert the new number.
+        # Now, select one of these to be the place insert the new number (either 1 or 2).
         index = randint(0, len(zeros) - 1)
+        new_num = randint(1,2)
         cell = zeros[index]
-        grid[cell[0]][cell[1]] = 1
+        grid[cell[0]][cell[1]] = new_num
         
 
-""" The following are commands for handing movement. """
+# The following are commands for handing movement.
+# There's probably a way to reduce these to a single function,
+# but I'll leave that to the future.
     
 def move_down():
     """ Move everything down and sum. """
@@ -71,25 +93,23 @@ def move_down():
     def cell_down(row, col):
         """ Moves everything to the lowest row possible. """
         if grid[row][col] == 0:
-            for k in range(0, row):
-                grid[row - k][col] = grid[row - k - 1][col]
-                grid[row - k - 1][col] = 0
-            grid[0][col] = 0
+            j_sum = 0
+            for j in range(0, row):
+                j_sum += grid[j][col]
+
+            # print(j_sum)
+            # wait = input("Waiting")
+            if j_sum > 0:
+                # print(f"{col}, {row} is a 0!")
+                while grid[row][col] == 0:
+                    for k in range(0, row):
+                        # print(f"Moving {col} , {row - k - 1} to {[col]}, {[row - k]}")
+                        grid[row - k][col] = grid[row - k - 1][col]
+                        grid[row - k - 1][col] = 0
+                    grid[0][col] = 0
+                else:
+                    pass
             
-        # Calling this recursively has not been working, so brute forcing for now.
-        if grid[row][col] == 0:
-            for k in range(0, row):
-                grid[row - k][col] = grid[row - k - 1][col]
-                grid[row - k - 1][col] = 0
-            grid[0][col] = 0
-
-        if grid[row][col] == 0:
-            for k in range(0, row):
-                grid[row - k][col] = grid[row - k - 1][col]
-                grid[row - k - 1][col] = 0
-            grid[0][col] = 0
-
-                
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
         if grid[row][col] == grid[row - 1][col] and grid[row][col] > 0:
@@ -99,7 +119,7 @@ def move_down():
     
 
                 
-    #print("===== Merging down =====")
+    # Move everything down.
     for c in range (0,4):
         col = c
         
@@ -108,7 +128,7 @@ def move_down():
             cell_down(row, col)
 
     
-    #print("===== Adding =====")
+    # Add cells together.
     for c in range (0,4):
         col = c
         
@@ -116,8 +136,7 @@ def move_down():
             row = 3 - r
             cell_add(row, col)
    
-
-    #print("===== Merging down again =====")
+    # Move everything down again.
     for c in range (0,4):
         col = c
         
@@ -133,26 +152,22 @@ def move_up():
     def cell_up(row, col):
         """ Moves everything to the highest row possible. """
         if grid[row][col] == 0:
-            for k in range(0, 3 - row):
-                grid[row + k][col] = grid[row + k + 1][col]
-                grid[row + k + 1][col] = 0
-            grid[3][col] = 0
-            
-        # Calling this recursively has not been working, so brute forcing for now.
-        if grid[row][col] == 0:
-            for k in range(0, 3 - row):
-                grid[row + k][col] = grid[row + k + 1][col]
-                grid[row + k + 1][col] = 0
-            grid[3][col] = 0
-            
-        if grid[row][col] == 0:
-            for k in range(0, 3 - row):
-                grid[row + k][col] = grid[row + k + 1][col]
-                grid[row + k + 1][col] = 0
-            grid[3][col] = 0
-            
-            
+            j_sum = 0
+            for j in range(row + 1, 4):
+                j_sum += grid[j][col]
 
+            # print(j_sum)
+            # wait = input("Waiting")
+            if j_sum > 0:
+                # print(f"{col}, {row} is a 0!")
+                while grid[row][col] == 0:
+                    for k in range(0, 3 - row):
+                        grid[row + k][col] = grid[row + k + 1][col]
+                        grid[row + k + 1][col] = 0
+                    grid[3][col] = 0
+                else:
+                    pass
+            
                 
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
@@ -191,32 +206,31 @@ def move_up():
 def move_right():
     
     def cell_right(row, col):
+        """ Moves everything to the rightmost col possible. """
         if grid[row][col] == 0:
-            for k in range(0, col):
-                grid[row][col - k] = grid[row][col - k - 1]
-                grid[row][col - k - 1] = 0
+            j_sum = 0
+            j_list = []
+            for j in range(0, col):
+                j_sum += grid[row][j]
+                j_list.append(grid[row][j])
                 
-            grid[row][0] = 0
+            if j_sum > 0:
+                while grid[row][col] == 0:
+                    for k in range(0, col):
+                        grid[row][col - k] = grid[row][col - k - 1]
+                        grid[row][col - k - 1] = 0
+                        
+                    grid[row][0] = 0            
+                else:
+                    pass
             
-        if grid[row][col] == 0:
-            for k in range(0, col):
-                grid[row][col - k] = grid[row][col - k - 1]
-                grid[row][col - k - 1] = 0
                 
-            grid[row][0] = 0
-
-        if grid[row][col] == 0:
-            for k in range(0, col):
-                grid[row][col - k] = grid[row][col - k - 1]
-                grid[row][col - k - 1] = 0
-                
-            grid[row][0] = 0
-
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
         if grid[row][col] == grid[row][col - 1] and grid[row][col] > 0:
             grid[row][col] += 1
             grid[row][col - 1] = 0
+            
    
     #print("===== Merging right =====")
     for r in range (0, 4):
@@ -246,29 +260,25 @@ def move_right():
 def move_left():
     
     def cell_left(row, col):
-        """ Moves everything to the highest row possible. """
+        """ Moves everything to the rightmost col possible. """
         if grid[row][col] == 0:
-            for k in range(0, 3 - col):
-                grid[row][col + k] = grid[row][col + k + 1]
-                grid[row][col + k + 1] = 0
-                
-            grid[row][3] = 0
+            j_sum = 0
+            for j in range(col + 1, 4):
+                j_sum += grid[row][j]
+                #print(j_sum)
+            #print(j_sum)
+            #wait = input("Waiting")
+            if j_sum > 0:
+                while grid[row][col] == 0:
+                    for k in range(0, 3 - col):
+                        grid[row][col + k] = grid[row][col + k + 1]
+                        grid[row][col + k + 1] = 0
+                        
+                    grid[row][3] = 0            
+                else:
+                    pass
             
-        if grid[row][col] == 0:
-            for k in range(0, 3 - col):
-                grid[row][col + k] = grid[row][col + k + 1]
-                grid[row][col + k + 1] = 0
                 
-            grid[row][3] = 0
-            
-        if grid[row][col] == 0:
-            for k in range(0, 3 - col):
-                grid[row][col + k] = grid[row][col + k + 1]
-                grid[row][col + k + 1] = 0
-                
-            grid[row][3] = 0
-            
-
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
         if grid[row][col] == grid[row][col + 1] and grid[row][col] > 0:
@@ -324,6 +334,7 @@ def get_direction():
         
 def game_over():
     print("Game Over!")
+    exit()
         
 """ The following method should play the game. """
 
