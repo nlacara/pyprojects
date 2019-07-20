@@ -23,6 +23,7 @@ grid = start_grid
 """ Here we have some commands for drawing the grid """
 
 def row_print(grid, row):
+    """ Prints a row of the grid """
     print(f"  \u2551 {grid[row][0]} \u2502 {grid[row][1]} \u2502 {grid[row][2]} \u2502 {grid[row][3]} \u2551".replace("10", "A").replace("11", "B").replace("12", "C").replace("13", "D").replace("14", "E").replace("15", "F").replace("0", " "))
 
 def hline():
@@ -74,6 +75,7 @@ def add_number():
             if grid[row][col] == 0:
                 zeros.append([row, col])
     if len(zeros) == 0:
+        # This isn't really how a game over shoulde happen...
         game_over()
     else:
         # Now, select one of these to be the place insert the new number (either 1 or 2).
@@ -90,36 +92,38 @@ def add_number():
 def move_down():
     """ Move everything down and sum. """
     
+    # First, define a couple of inner functions, one to take care of
+    # moving numbers into empty cells, and one to add cells together.
+    # This is useful because we will have to call cell_down() twice,
+    # once before cell_add() and once after.
+    
     def cell_down(row, col):
-        """ Moves everything to the lowest row possible. """
-        if grid[row][col] == 0:
-            j_sum = 0
+        """ If a cell is empty, moves everything to the lowest row possible. """
+        if grid[row][col] == 0: 
+            j_sum = 0 # Check and see if there are numbers above the empty cell
             for j in range(0, row):
                 j_sum += grid[j][col]
 
-            # print(j_sum)
-            # wait = input("Waiting")
-            if j_sum > 0:
-                # print(f"{col}, {row} is a 0!")
+            if j_sum > 0: # If there are numbers above the cell, then move them down.
                 while grid[row][col] == 0:
                     for k in range(0, row):
-                        # print(f"Moving {col} , {row - k - 1} to {[col]}, {[row - k]}")
                         grid[row - k][col] = grid[row - k - 1][col]
                         grid[row - k - 1][col] = 0
                     grid[0][col] = 0
-                else:
+                else:     # But if there aren't se don't want to get stuck in a loop!
                     pass
             
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
         if grid[row][col] == grid[row - 1][col] and grid[row][col] > 0:
-            
             grid[row][col] += 1
             grid[row - 1][col] = 0
     
 
+    # Now we use the above functions to move numbers down.
+    # and then add adjacent identical numbers.
                 
-    # Move everything down.
+    # First, move everything down that can be.
     for c in range (0,4):
         col = c
         
@@ -127,7 +131,6 @@ def move_down():
             row = 3 - r
             cell_down(row, col)
 
-    
     # Add cells together.
     for c in range (0,4):
         col = c
@@ -145,6 +148,8 @@ def move_down():
             cell_down(row, col)
             
 
+# move_up(), move_right(), and move_left() basically follow the same formula
+# as move_down(), so comments below will be more sparse.
 
 def move_up():
     """ Move everything up and sum. """
@@ -156,8 +161,6 @@ def move_up():
             for j in range(row + 1, 4):
                 j_sum += grid[j][col]
 
-            # print(j_sum)
-            # wait = input("Waiting")
             if j_sum > 0:
                 # print(f"{col}, {row} is a 0!")
                 while grid[row][col] == 0:
@@ -172,13 +175,10 @@ def move_up():
     def cell_add(row, col):
         """ Sum the contents of two cells with the same values """
         if grid[row][col] == grid[row + 1][col] and grid[row][col] > 0:
-            
             grid[row][col] += 1
             grid[row + 1][col] = 0
     
-
                 
-    #print("===== Merging up =====")
     for c in range (0,4):
         col = c
         
@@ -186,7 +186,6 @@ def move_up():
             row = r
             cell_up(row, col)
     
-    #print("===== Adding =====")
     for c in range (0,4):
         col = c
         
@@ -194,7 +193,6 @@ def move_up():
             row = r
             cell_add(row, col)
    
-    #print("===== Merging down up =====")
     for c in range(0,4):
         col = c
         
@@ -219,7 +217,6 @@ def move_right():
                     for k in range(0, col):
                         grid[row][col - k] = grid[row][col - k - 1]
                         grid[row][col - k - 1] = 0
-                        
                     grid[row][0] = 0            
                 else:
                     pass
@@ -232,7 +229,6 @@ def move_right():
             grid[row][col - 1] = 0
             
    
-    #print("===== Merging right =====")
     for r in range (0, 4):
         row = r
         
@@ -240,7 +236,6 @@ def move_right():
             col = 3 - c
             cell_right(row, col)
         
-    #print("===== Adding =====")
     for c in range (0,4):
         col = 3 - c
         
@@ -248,7 +243,6 @@ def move_right():
             row = r
             cell_add(row, col)
    
-    #print("===== Merging right again =====")
     for r in range (0, 4):
         row = r
         
@@ -265,15 +259,12 @@ def move_left():
             j_sum = 0
             for j in range(col + 1, 4):
                 j_sum += grid[row][j]
-                #print(j_sum)
-            #print(j_sum)
-            #wait = input("Waiting")
+
             if j_sum > 0:
                 while grid[row][col] == 0:
                     for k in range(0, 3 - col):
                         grid[row][col + k] = grid[row][col + k + 1]
                         grid[row][col + k + 1] = 0
-                        
                     grid[row][3] = 0            
                 else:
                     pass
@@ -285,38 +276,32 @@ def move_left():
             grid[row][col] += 1
             grid[row][col + 1] = 0
    
-    #print("===== Merging right =====")
     for r in range (0, 4):
         row = r
         
         for c in range (0,4):
             col = c
-            #print(f"Now at column {col}.")
             cell_left(row, col)
         
-    #print("===== Adding =====")
     for c in range (0,3):
         col = c
-        #print(f"Now at column {col}.")
         
         for r in range (0, 4):
             row = r
             cell_add(row, col)
    
-    #print("===== Merging right again =====")
     for r in range (0, 4):
         row = r
         
         for c in range (0,4):
             col = c
-            #print(f"Now at column {col}.")
             cell_left(row, col)
         
 
-""" Game controls   """
+# Now we define controls to let the player interact with the game.
 
 def get_direction():
-    
+    """ Ask the play what they would like to do."""
     direction = input("[H/A - Left | J/S - Down | K/W - Up | D/L - Right | Q - Quit] > ").upper()
     
     if direction == "J" or direction == "S" :
@@ -333,17 +318,20 @@ def get_direction():
         get_direction()
         
 def game_over():
+    """ End the game """
     print("Game Over!")
     exit()
         
-""" The following method should play the game. """
+# The following function should start the game.
 
 def play_game():
-    
-    while True:
+    """ Start the game."""
+    while True:             # At some point, this should be made to react to a change.
         add_number()
         draw_grid()
         get_direction()
+    else:
+        game_over()
         
 
             
